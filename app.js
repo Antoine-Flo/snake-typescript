@@ -1,7 +1,5 @@
 var canvas = document.querySelector("canvas");
 var c = canvas.getContext("2d");
-c.fillStyle = "black";
-c.fillRect(0, 0, canvas.width, canvas.height);
 var grid = 20;
 var Prize = /** @class */ (function () {
     function Prize() {
@@ -26,26 +24,31 @@ var Snake = /** @class */ (function () {
         var _this = this;
         this.sx = 0;
         this.sy = 0;
+        this.vx = 0;
+        this.vy = 0;
         this.trail = [];
         this.tail = 5;
         this.draw = function () {
             c.fillStyle = "red";
-            c.fillRect(_this.sx, _this.sy, grid - 2, grid - 2);
+            c.fillRect(_this.sx * grid, _this.sy * grid, grid - 2, grid - 2);
         };
         this.keyPush = function (evt) {
             switch (evt.key) {
                 case "ArrowLeft":
-                    _this.sx -= 1;
-                    console.log(_this.sx);
+                    _this.vx = -1;
+                    _this.vy = 0;
                     break;
                 case "ArrowDown":
-                    _this.sy += 1;
+                    _this.vx = 0;
+                    _this.vy = 1;
                     break;
                 case "ArrowRight":
-                    _this.sx += 1;
+                    _this.vx = 1;
+                    _this.vy = 0;
                     break;
                 case "ArrowUp":
-                    _this.sy -= 1;
+                    _this.vx = 0;
+                    _this.vy = -1;
                     break;
             }
         };
@@ -76,8 +79,8 @@ var GameLoop = /** @class */ (function () {
             c.fillStyle = "black";
             c.fillRect(0, 0, canvas.width, canvas.height);
             document.addEventListener("keydown", this.snake.keyPush);
-            console.log(this.snake.sx);
-            console.log(this.snake.sy);
+            this.snake.sx += this.snake.vx;
+            this.snake.sy += this.snake.vy;
             this.snake.draw();
             this.prize.draw();
         }

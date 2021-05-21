@@ -1,9 +1,5 @@
-
 const canvas = <HTMLCanvasElement>document.querySelector("canvas");
 const c = <CanvasRenderingContext2D>canvas.getContext("2d");
-
-c.fillStyle = "black";
-c.fillRect(0, 0, canvas.width, canvas.height);
 
 let grid = 20;
 
@@ -29,33 +25,37 @@ class Prize {
 class Snake {
     sx = 0;
     sy = 0;
+    vx = 0;
+    vy = 0;
     trail = [];
     tail = 5;
 
 
     draw = () => {
       c.fillStyle = "red";
-      c.fillRect(this.sx, this.sy, grid - 2, grid - 2);
+      c.fillRect(this.sx * grid, this.sy * grid, grid - 2, grid - 2);
     }
 
     keyPush = (evt: KeyboardEvent) => {
-
         switch(evt.key) {
             case "ArrowLeft":
-                this.sx -= 1;
-                console.log(this.sx);
+                this.vx = -1;
+                this.vy = 0;
                 break;
 
             case "ArrowDown":
-                this.sy += 1;
+                this.vx = 0;
+                this.vy = 1;
                 break;
 
             case "ArrowRight":
-                this.sx += 1;
+                this.vx = 1;
+                this.vy = 0;
                 break;
 
             case "ArrowUp":
-                this.sy -= 1;
+                this.vx = 0;
+                this.vy = -1;
                 break;
         }
     }
@@ -87,12 +87,10 @@ class GameLoop {
       c.fillRect(0, 0, canvas.width, canvas.height);
       document.addEventListener("keydown", this.snake.keyPush);
 
-
-      console.log(this.snake.sx);
-      console.log(this.snake.sy);
+      this.snake.sx += this.snake.vx;
+      this.snake.sy += this.snake.vy;
       this.snake.draw();
       this.prize.draw();
-
     }
   }
 }
