@@ -10,13 +10,13 @@ var Prize = /** @class */ (function () {
         var _this = this;
         this.px = this.pickRandom();
         this.py = this.pickRandom();
-        this.update = function () {
-            _this.px = _this.pickRandom();
-            _this.py = _this.pickRandom();
-        };
         this.draw = function () {
             c.fillStyle = "green";
             c.fillRect(_this.px * grid, _this.py * grid, grid - 2, grid - 2);
+        };
+        this.update = function () {
+            _this.px = _this.pickRandom();
+            _this.py = _this.pickRandom();
         };
     }
     Prize.prototype.pickRandom = function () {
@@ -33,6 +33,15 @@ var Snake = /** @class */ (function () {
         this.vy = 0;
         this.trail = [{ x: 0, y: 0 }];
         this.tail = 5;
+        this.draw = function () {
+            c.fillStyle = "red";
+            _this.trail.forEach(function (block, i) {
+                c.fillRect(block.x * grid, block.y * grid, grid - 2, grid - 2);
+                if (block.x === _this.sx && block.y === _this.sy && i < _this.trail.length - 1) {
+                    _this.tail = 5;
+                }
+            });
+        };
         this.update = function () {
             _this.sx += _this.vx;
             _this.sy += _this.vy;
@@ -52,16 +61,6 @@ var Snake = /** @class */ (function () {
             while (_this.trail.length > _this.tail) {
                 _this.trail.shift();
             }
-        };
-        this.draw = function () {
-            c.fillStyle = "red";
-            _this.trail.forEach(function (block, i) {
-                c.fillRect(block.x * grid, block.y * grid, grid - 2, grid - 2);
-                if (block.x === _this.sx && block.y === _this.sy && i < _this.trail.length - 1) {
-                    _this.tail = 5;
-                }
-            });
-            console.log("Head : " + _this.sx + " | " + _this.sy);
         };
         this.keyPush = function (evt) {
             switch (evt.key) {
@@ -93,9 +92,9 @@ var GameLoop = /** @class */ (function () {
         this.now = 0;
         this.then = 0;
         this.interval = 0;
+        this.id = 0;
         this.snake = new Snake();
         this.prize = new Prize();
-        this.id = 0;
         this.start = function (fps) {
             _this.fpsInterval = 1000 / fps;
             _this.then = performance.now();
@@ -112,10 +111,10 @@ var GameLoop = /** @class */ (function () {
                 _this.then = _this.now - (_this.interval % _this.fpsInterval);
                 c.fillStyle = "black";
                 c.fillRect(0, 0, canvas.width, canvas.height);
+                _this.prize.draw();
                 document.addEventListener("keydown", _this.snake.keyPush);
                 _this.snake.update();
                 _this.snake.draw();
-                _this.prize.draw();
                 if (_this.snake.sx === _this.prize.px && _this.snake.sy === _this.prize.py) {
                     _this.winPrize();
                 }
@@ -124,6 +123,7 @@ var GameLoop = /** @class */ (function () {
         this.winPrize = function () {
             _this.prize.update();
             _this.snake.tail++;
+            _this.prize.draw();
         };
     }
     return GameLoop;

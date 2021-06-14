@@ -2,6 +2,7 @@ const canvas = <HTMLCanvasElement>document.querySelector("canvas");
 const c = <CanvasRenderingContext2D>canvas.getContext("2d");
 const btnStart = <HTMLElement>document.querySelector("#start");
 const btnStop = <HTMLElement>document.querySelector("#stop");
+
 c.fillStyle = "black";
 c.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -11,19 +12,21 @@ class Prize {
   px = this.pickRandom();
   py = this.pickRandom();
 
-  pickRandom() {
-    return Math.floor(Math.random() * grid);
-  }
+
+  draw = () => {
+    c.fillStyle = "green";
+    c.fillRect(this.px * grid, this.py * grid, grid - 2, grid - 2);
+  };
 
   update = () => {
     this.px = this.pickRandom();
     this.py = this.pickRandom();
   };
 
-  draw = () => {
-    c.fillStyle = "green";
-    c.fillRect(this.px * grid, this.py * grid, grid - 2, grid - 2);
-  };
+  pickRandom() {
+    return Math.floor(Math.random() * grid);
+  }
+
 }
 
 class Snake {
@@ -33,6 +36,15 @@ class Snake {
   vy = 0;
   trail= [{x: 0, y:0}];
   tail = 5;
+
+  draw = () => {
+    c.fillStyle = "red";
+
+    this.trail.forEach((block, i) => {
+      c.fillRect(block.x * grid, block.y * grid, grid - 2, grid - 2);
+      if(block.x === this.sx && block.y === this.sy && i < this.trail.length - 1) { this.tail = 5; }
+    })
+  };
 
   update = () => {
     this.sx += this.vx;
@@ -48,21 +60,7 @@ class Snake {
     while(this.trail.length > this.tail) {
       this.trail.shift()
     }
-    
   }
-
-  draw = () => {
-    c.fillStyle = "red";
-
-    this.trail.forEach((block, i) => {
-      c.fillRect(block.x * grid, block.y * grid, grid - 2, grid - 2);
-      if(block.x === this.sx && block.y === this.sy && i < this.trail.length - 1) { this.tail = 5; }
-      
-    })
-    
-    console.log("Head : " + this.sx + " | " + this.sy);
-
-  };
 
   keyPush = (evt: KeyboardEvent) => {
     switch (evt.key) {
@@ -94,9 +92,10 @@ class GameLoop {
   now: number = 0;
   then: number = 0;
   interval: number = 0;
+  id = 0;
+
   snake = new Snake();
   prize = new Prize();
-  id = 0;
 
   start = (fps: number) => {
     this.fpsInterval = 1000 / fps;
@@ -115,14 +114,16 @@ class GameLoop {
 
     if (this.interval > this.fpsInterval) {
       this.then = this.now - (this.interval % this.fpsInterval);
+
+
       c.fillStyle = "black";
       c.fillRect(0, 0, canvas.width, canvas.height);
+      this.prize.draw();
+
       document.addEventListener("keydown", this.snake.keyPush);
     
       this.snake.update();
-
       this.snake.draw();
-      this.prize.draw();
 
       if (this.snake.sx === this.prize.px && this.snake.sy === this.prize.py) {
         this.winPrize();
@@ -133,6 +134,7 @@ class GameLoop {
   winPrize = () => {
     this.prize.update();
     this.snake.tail++;
+    this.prize.draw();
   };
 }
 
